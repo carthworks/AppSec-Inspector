@@ -35,6 +35,16 @@
                         <h3>Auth & Session</h3>
                         <p>Audit cookie security, session management, and authentication flows</p>
                     </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">📊</span>
+                        <h3>Security Score</h3>
+                        <p>Get a 0-100 score and A-F grade with weighted breakdown by category</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">✅</span>
+                        <h3>Auto-Fix Snippets</h3>
+                        <p>Copy-paste ready configuration fixes for Nginx, Apache, Express, and Spring</p>
+                    </div>
                 </div>
 
                 <div class="privacy-notice">
@@ -96,6 +106,32 @@
                 </div>
 
                 <div class="how-to-section">
+                    <h3>📊 Security Score & Grade</h3>
+                    <ul>
+                        <li>Score card appears automatically after running any scan</li>
+                        <li><strong>Score (0-100):</strong> Overall security rating based on all findings</li>
+                        <li><strong>Grade (A-F):</strong> Executive-friendly letter grade</li>
+                        <li><strong>Breakdown:</strong> See individual scores for Headers, Secrets, and Auth</li>
+                        <li>Score updates in real-time as you run more scans</li>
+                        <li>Use the grade for reporting to management and stakeholders</li>
+                    </ul>
+                </div>
+
+                <div class="how-to-section">
+                    <h3>✅ Auto-Fix Code Snippets</h3>
+                    <ul>
+                        <li>Fix snippets appear automatically on <strong>FAIL</strong> and <strong>WARN</strong> header
+                            findings</li>
+                        <li><strong>Platform Tabs:</strong> Click to switch between Nginx, Apache, Express, or Spring
+                        </li>
+                        <li><strong>Copy Button:</strong> One-click copy to clipboard</li>
+                        <li>Paste the code directly into your configuration files</li>
+                        <li>Supports 7 security headers: HSTS, CSP, X-Frame-Options, and more</li>
+                        <li>Save hours of research and configuration time!</li>
+                    </ul>
+                </div>
+
+                <div class="how-to-section">
                     <h3>📤 Export & Share Results</h3>
                     <ul>
                         <li><strong>Export as JSON:</strong> Machine-readable format for automation</li>
@@ -137,6 +173,37 @@
                 </div>
             </div>
         </header>
+
+        <!-- Security Score Card -->
+        <div id="scoreCard" class="score-card hidden glass-effect">
+            <div class="score-display">
+                <div class="score-circle">
+                    <div class="score-number" id="scoreNumber">--</div>
+                    <div class="score-label">Security Score</div>
+                </div>
+                <div class="grade-display">
+                    <div class="grade-letter" id="gradeLetter">-</div>
+                    <div class="grade-label">Grade</div>
+                </div>
+            </div>
+            <div class="score-summary" id="scoreSummary">
+                Run a scan to see your security score
+            </div>
+            <div class="score-breakdown hidden" id="scoreBreakdown">
+                <div class="breakdown-item">
+                    <span class="breakdown-label">🛡️ Headers</span>
+                    <span class="breakdown-value" id="headersBreakdown">--%</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">🔑 Secrets</span>
+                    <span class="breakdown-value" id="secretsBreakdown">--%</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">🔐 Auth</span>
+                    <span class="breakdown-value" id="authBreakdown">--%</span>
+                </div>
+            </div>
+        </div>
 
         <!-- Tab Navigation -->
         <nav class="tab-nav">
@@ -267,7 +334,9 @@
     <!-- Load utility modules first -->
     <script src="../utils/regex.js"></script>
     <script src="../utils/risk-engine.js"></script>
-    <script src="../utils/owasp-map.js"></script>
+    <script src="../utils/owasp-map.js"></script>`r`n
+    <script src="../utils/fix-snippets.js"></script>`r`n
+    <script src="../utils/score-calculator.js"></script>
 
     <!-- Load analysis modules -->
     <script src="../modules/headers.js"></script>

@@ -38,6 +38,25 @@ AppSec Inspector is a powerful, privacy-focused Chrome extension designed for Ap
 - Token expiration checking
 - Authentication best practices
 
+### 📊 **NEW: Security Score & Grade**
+- **0-100 Score**: Comprehensive security rating
+- **Letter Grade (A-F)**: Executive-friendly assessment
+- **Weighted Breakdown**: Headers (40%), Secrets (35%), Auth (25%)
+- **Color-Coded Display**: Instant visual feedback
+- **Summary Messages**: Actionable insights
+- **Real-time Updates**: Score updates after each scan
+
+### ✅ **NEW: Auto-Fix Code Snippets**
+- **Copy-Paste Ready**: Instant configuration fixes
+- **Multi-Platform Support**:
+  - Nginx server configuration
+  - Apache .htaccess / config
+  - Node.js/Express with Helmet
+  - Spring Boot security config
+- **Platform Tabs**: Easy switching between tech stacks
+- **One-Click Copy**: Copy button with visual feedback
+- **7 Security Headers**: HSTS, CSP, X-Frame-Options, and more
+
 ## 🎨 Modern UI
 
 - **Glassmorphism Design**: Premium, modern interface
@@ -133,7 +152,9 @@ AppSec Inspector
 └── Utilities (utils/)
     ├── regex.js - Secret detection patterns
     ├── risk-engine.js - Risk assessment
-    └── owasp-map.js - OWASP Top 10 mapping
+    ├── owasp-map.js - OWASP Top 10 mapping
+    ├── fix-snippets.js - Auto-fix code snippets (NEW)
+    └── score-calculator.js - Security scoring engine (NEW)
 ```
 
 ### Permissions
@@ -240,6 +261,8 @@ Found a bug? Please report it:
 
 ## 🌟 Roadmap
 
+- [x] **Security Score & Grade System** ✅
+- [x] **Auto-Fix Code Snippets** ✅
 - [ ] Chrome Web Store publication
 - [ ] Additional secret patterns
 - [ ] Custom rule creation

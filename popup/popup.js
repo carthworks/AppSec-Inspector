@@ -132,6 +132,7 @@ async function scanHeaders() {
 
         // Display results
         displayHeadersResults(findings, response.url);
+        updateSecurityScore();
 
     } catch (error) {
         console.error('Error scanning headers:', error);
@@ -175,6 +176,7 @@ async function scanSecrets() {
 
         // Display results
         displaySecretsResults(findings);
+        updateSecurityScore();
 
     } catch (error) {
         console.error('Error scanning secrets:', error);
@@ -219,6 +221,7 @@ async function scanAuth() {
 
         // Display results
         displayAuthResults(findings);
+        updateSecurityScore();
 
     } catch (error) {
         console.error('Error scanning auth:', error);
@@ -386,6 +389,18 @@ function displayHeadersResults(findings, url) {
     });
 
     container.innerHTML = html;
+    
+    // Add fix snippets to FAIL and WARN findings
+    setTimeout(() => {
+        const cards = container.querySelectorAll('.result-card');
+        findings.forEach((finding, index) => {
+            if ((finding.status === 'FAIL' || finding.status === 'WARN') && cards[index]) {
+                addFixSnippets(finding.header.toLowerCase(), cards[index]);
+            }
+        });
+    }, 100);
+    
+
 }
 
 /**
@@ -434,6 +449,8 @@ function displaySecretsResults(findings) {
     });
 
     container.innerHTML = html;
+    
+
 }
 
 /**
@@ -547,6 +564,8 @@ function displayAuthResults(findings) {
     }
 
     container.innerHTML = html;
+    
+
 }
 
 /**
@@ -991,4 +1010,99 @@ function removeDuplicateFindings(findings) {
         seen.add(key);
         return true;
     });
+}
+
+/**
+ * Update security score display
+ */
+function updateSecurityScore() {
+    const scoreData = calculateSecurityScore(currentResults);
+    
+    // Show score card
+    document.getElementById('scoreCard').classList.remove('hidden');
+    
+    // Update score number
+    document.getElementById('scoreNumber').textContent = scoreData.score;
+    
+    // Update grade
+    const gradeLetter = document.getElementById('gradeLetter');
+    gradeLetter.textContent = scoreData.grade;
+    gradeLetter.style.color = getGradeColor(scoreData.grade);
+    
+    // Update summary
+    document.getElementById('scoreSummary').textContent = scoreData.summary;
+    
+    // Update breakdown
+    document.getElementById('scoreBreakdown').classList.remove('hidden');
+    const headersPercent = Math.round((scoreData.breakdown.headers.score / scoreData.breakdown.headers.max) * 100);
+    const secretsPercent = Math.round((scoreData.breakdown.secrets.score / scoreData.breakdown.secrets.max) * 100);
+    const authPercent = Math.round((scoreData.breakdown.auth.score / scoreData.breakdown.auth.max) * 100);
+    
+    document.getElementById('headersBreakdown').textContent = headersPercent + '%';
+    document.getElementById('secretsBreakdown').textContent = secretsPercent + '%';
+    document.getElementById('authBreakdown').textContent = authPercent + '%';
+}
+
+/**
+ * Add fix snippets to header result card
+ */
+function addFixSnippets(headerName, resultElement) {
+    const snippets = getFixSnippets(headerName);
+    if (!snippets) return;
+    
+    const fixDiv = document.createElement('div');
+    fixDiv.className = 'fix-snippets';
+    
+    const snippetId = 'snippet-' + headerName.replace(/[^a-z0-9]/g, '-');
+    
+    fixDiv.innerHTML = `
+        <div class="fix-snippets-header">
+            <div class="fix-snippets-title">
+                <span></span>
+                <span>Quick Fix</span>
+            </div>
+        </div>
+        <div class="platform-tabs">
+            <button class="platform-tab active" data-platform="nginx" data-snippet-id="{snippetId}">Nginx</button>
+            <button class="platform-tab" data-platform="apache" data-snippet-id="{snippetId}">Apache</button>
+            <button class="platform-tab" data-platform="express" data-snippet-id="{snippetId}">Express</button>
+            <button class="platform-tab" data-platform="spring" data-snippet-id="{snippetId}">Spring</button>
+        </div>
+        <div class="code-snippet">
+            <button class="copy-btn" onclick="copyFixSnippet(this)">
+                <span></span> Copy
+            </button>
+            <code id="{snippetId}">{escapeHtml(snippets.nginx)}</code>
+        </div>
+    `;
+    
+    // Add platform switching
+    fixDiv.querySelectorAll('.platform-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const parentFix = tab.closest('.fix-snippets');
+            parentFix.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const platform = tab.dataset.platform;
+            const codeElement = parentFix.querySelector('code');
+            codeElement.textContent = snippets[platform];
+        });
+    });
+    
+    resultElement.appendChild(fixDiv);
+}
+
+/**
+ * Copy fix snippet to clipboard
+ */
+function copyFixSnippet(button) {
+    const code = button.parentElement.querySelector('code').textContent;
+    navigator.clipboard.writeText(code);
+    
+    button.innerHTML = '<span></span> Copied!';
+    button.classList.add('copied');
+    
+    setTimeout(() => {
+        button.innerHTML = '<span></span> Copy';
+        button.classList.remove('copied');
+    }, 2000);
 }

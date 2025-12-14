@@ -28,7 +28,10 @@ build/
 *.pem
 *.zip
 node_modules/
-*.md    
+*.md 
+
+
+
 
 # Temporary files
 *.tmp
