@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test regex.js Loading</title>
+</head>
+
+<body>
+    <h1>Testing regex.js</h1>
+    <div id="results"></div>
+
+    <script src="../utils/regex.js"></script>
+    <script>
+        const results = document.getElementById('results');
+
+        // Test 1: Check if functions are defined
+        results.innerHTML += '<h2>Function Availability:</h2>';
+        results.innerHTML += `<p>scanForSecrets: ${typeof scanForSecrets}</p>`;
+        results.innerHTML += `<p>maskSecret: ${typeof maskSecret}</p>`;
+        results.innerHTML += `<p>SECRET_PATTERNS: ${typeof SECRET_PATTERNS}</p>`;
+
+        // Test 2: Try scanning
+        if (typeof scanForSecrets === 'function') {
+            results.innerHTML += '<h2>Test Scan:</h2>';
+            const testContent = 'Here is a JWT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.test';
+            const findings = scanForSecrets(testContent, 'Test');
+            results.innerHTML += `<p>Found ${findings.length} secrets</p>`;
+            if (findings.length > 0) {
+                results.innerHTML += `<p>Type: ${findings[0].type}</p>`;
+                results.innerHTML += `<p>Masked: ${findings[0].maskedValue}</p>`;
+                results.innerHTML += '<p style="color: green;">✅ regex.js is working correctly!</p>';
+            }
+        } else {
+            results.innerHTML += '<p style="color: red;">❌ scanForSecrets is not defined</p>';
+        }
+    </script>
+</body>
+
+</html>

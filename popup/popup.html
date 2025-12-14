@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppSec Inspector</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <!-- Welcome Modal -->
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content glass-effect">
+            <div class="modal-header">
+                <h2>🔒 Welcome to AppSec Inspector</h2>
+                <button id="closeWelcome" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="welcome-text">Your professional web application security inspection toolkit.</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <span class="feature-icon">🛡️</span>
+                        <h3>Security Headers</h3>
+                        <p>Analyze HTTP security headers and get OWASP-aligned recommendations</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">🔑</span>
+                        <h3>Secret Detection</h3>
+                        <p>Scan for exposed tokens, API keys, and credentials in your application</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">🔐</span>
+                        <h3>Auth & Session</h3>
+                        <p>Audit cookie security, session management, and authentication flows</p>
+                    </div>
+                </div>
+
+                <div class="privacy-notice">
+                    <strong>🔒 100% Private:</strong> All analysis runs locally in your browser. No data is collected or
+                    transmitted.
+                </div>
+
+                <div class="checkbox-container">
+                    <input type="checkbox" id="dontShowAgain">
+                    <label for="dontShowAgain">Don't show this again</label>
+                </div>
+
+                <button id="getStarted" class="primary-btn">Get Started</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- How To Modal -->
+    <div id="howToModal" class="modal">
+        <div class="modal-content glass-effect">
+            <div class="modal-header">
+                <h2>📖 How to Use AppSec Inspector</h2>
+                <button id="closeHowTo" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body how-to-content">
+                <div class="how-to-section">
+                    <h3>🛡️ Security Headers Inspector</h3>
+                    <ol>
+                        <li>Navigate to the website you want to inspect</li>
+                        <li>Click the <strong>Headers</strong> tab</li>
+                        <li>Click <strong>Scan Headers</strong> button</li>
+                        <li>Review findings with severity levels (PASS/WARN/FAIL)</li>
+                        <li>Read recommendations and OWASP references</li>
+                    </ol>
+                </div>
+
+                <div class="how-to-section">
+                    <h3>🔑 Token & Secret Leak Detector</h3>
+                    <ol>
+                        <li>Navigate to the target application</li>
+                        <li>Click the <strong>Secrets</strong> tab</li>
+                        <li>Click <strong>Scan for Secrets</strong> button</li>
+                        <li>Review detected tokens (JWT, API keys, AWS keys, etc.)</li>
+                        <li>Check locations (DOM, JS files, Network requests)</li>
+                        <li>Note: Secrets are masked for security</li>
+                    </ol>
+                </div>
+
+                <div class="how-to-section">
+                    <h3>🔐 Auth & Session Checker</h3>
+                    <ol>
+                        <li>Navigate to the authenticated application</li>
+                        <li>Click the <strong>Auth & Session</strong> tab</li>
+                        <li>Click <strong>Check Auth</strong> button</li>
+                        <li>Review cookie security flags (Secure, HttpOnly, SameSite)</li>
+                        <li>Check JWT token expiration and structure</li>
+                        <li>Follow best-practice recommendations</li>
+                    </ol>
+                </div>
+
+                <div class="how-to-section">
+                    <h3>📤 Export & Share Results</h3>
+                    <ul>
+                        <li><strong>Export as JSON:</strong> Machine-readable format for automation</li>
+                        <li><strong>Export as TXT:</strong> Plain text report for documentation</li>
+                        <li><strong>Export as PDF:</strong> Professional report for stakeholders</li>
+                        <li><strong>Share:</strong> Copy shareable link or share via social media</li>
+                    </ul>
+                </div>
+
+                <div class="tips-section">
+                    <h3>💡 Pro Tips</h3>
+                    <ul>
+                        <li>Use the theme toggle (☀️/🌙) to switch between light and dark modes</li>
+                        <li>Clear results before scanning a new site for accurate findings</li>
+                        <li>Export results regularly for compliance documentation</li>
+                        <li>All analysis is local - no data leaves your browser</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header glass-effect">
+            <div class="header-content">
+                <div class="logo-section">
+                    <span class="logo-icon">🔒</span>
+                    <h1>AppSec Inspector</h1>
+                </div>
+                <div class="header-actions">
+                    <button id="helpBtn" class="icon-btn" title="How to Use">
+                        <span>❓</span>
+                    </button>
+                    <button id="themeToggle" class="icon-btn" title="Toggle Theme">
+                        <span id="themeIcon">🌙</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="headers">
+                <span class="tab-icon">🛡️</span>
+                <span>Headers</span>
+            </button>
+            <button class="tab-btn" data-tab="secrets">
+                <span class="tab-icon">🔑</span>
+                <span>Secrets</span>
+            </button>
+            <button class="tab-btn" data-tab="auth">
+                <span class="tab-icon">🔐</span>
+                <span>Auth & Session</span>
+            </button>
+        </nav>
+
+        <!-- Tab Content -->
+        <main class="tab-content">
+            <!-- Headers Tab -->
+            <div id="headersTab" class="tab-pane active">
+                <div class="scan-section">
+                    <button id="scanHeaders" class="scan-btn primary-btn">
+                        <span class="btn-icon">🔍</span>
+                        Scan Security Headers
+                    </button>
+                    <p class="scan-description">Analyze HTTP security headers for the current page</p>
+                </div>
+                <div id="headersResults" class="results-container"></div>
+            </div>
+
+            <!-- Secrets Tab -->
+            <div id="secretsTab" class="tab-pane">
+                <div class="scan-section">
+                    <button id="scanSecrets" class="scan-btn primary-btn">
+                        <span class="btn-icon">🔍</span>
+                        Scan for Secrets
+                    </button>
+                    <p class="scan-description">Detect exposed tokens, API keys, and credentials</p>
+                </div>
+                <div id="secretsResults" class="results-container"></div>
+            </div>
+
+            <!-- Auth Tab -->
+            <div id="authTab" class="tab-pane">
+                <div class="scan-section">
+                    <button id="scanAuth" class="scan-btn primary-btn">
+                        <span class="btn-icon">🔍</span>
+                        Check Auth & Session
+                    </button>
+                    <p class="scan-description">Audit cookie security and session management</p>
+                </div>
+                <div id="authResults" class="results-container"></div>
+            </div>
+        </main>
+
+        <!-- Action Bar -->
+        <div class="action-bar glass-effect">
+            <div class="action-group">
+                <button id="clearResults" class="action-btn secondary-btn">
+                    <span>🗑️</span> Clear Results
+                </button>
+            </div>
+            <div class="action-group">
+                <button id="exportJson" class="action-btn" title="Export as JSON">
+                    <span>📄</span> JSON
+                </button>
+                <button id="exportTxt" class="action-btn" title="Export as TXT">
+                    <span>📝</span> TXT
+                </button>
+                <button id="exportPdf" class="action-btn" title="Export as PDF">
+                    <span>📑</span> PDF
+                </button>
+                <button id="shareBtn" class="action-btn" title="Share">
+                    <span>🔗</span> Share
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p class="disclaimer">
+                    <strong>Read-only inspection tool.</strong> All analysis runs locally. No data is collected or
+                    transmitted.
+                </p>
+
+                <!-- Author Section -->
+                <div class="footer-section">
+                    <h4>👨‍💻 Author</h4>
+                    <div class="footer-links">
+                        <a href="https://github.com/carthworks" target="_blank" rel="noopener" title="GitHub Profile">
+                            <span>🐙</span> GitHub
+                        </a>
+                        <span>•</span>
+                        <a href="https://buymeacoffee.com/tkarthikeyw" target="_blank" rel="noopener"
+                            title="Buy Me a Coffee">
+                            <span>☕</span> Support
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Support Section -->
+                <div class="footer-section">
+                    <h4>🛟 Support</h4>
+                    <div class="footer-links">
+                        <a href="#" id="privacyLink">Privacy Policy</a>
+                        <span>•</span>
+                        <a href="#" id="supportLink">Help</a>
+                        <span>•</span>
+                        <span class="version">v1.0.0</span>
+                    </div>
+                </div>
+
+                <p class="footer-credit">
+                    Made with ❤️ for the security community
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>Analyzing...</p>
+    </div>
+
+    <!-- Load utility modules first -->
+    <script src="../utils/regex.js"></script>
+    <script src="../utils/risk-engine.js"></script>
+    <script src="../utils/owasp-map.js"></script>
+
+    <!-- Load analysis modules -->
+    <script src="../modules/headers.js"></script>
+    <script src="../modules/secrets.js"></script>
+    <script src="../modules/auth.js"></script>
+
+    <!-- Load main popup script -->
+    <script src="popup.js"></script>
+</body>
+
+</html>

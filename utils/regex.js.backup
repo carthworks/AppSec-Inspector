@@ -1,0 +1,290 @@
+/**
+ * Regular expressions for detecting various types of secrets and tokens
+ * All patterns are designed to minimize false positives while maintaining high detection rates
+ */
+
+const SECRET_PATTERNS = {
+    // JWT Tokens
+    jwt: {
+        pattern: /eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g,
+        type: 'JWT Token',
+        severity: 'high',
+        description: 'JSON Web Token detected'
+    },
+
+    // AWS Access Keys
+    awsAccessKey: {
+        pattern: /AKIA[0-9A-Z]{16}/g,
+        type: 'AWS Access Key',
+        severity: 'critical',
+        description: 'AWS Access Key ID detected'
+    },
+
+    // AWS Secret Keys
+    awsSecretKey: {
+        pattern: /aws(.{0,20})?['"][0-9a-zA-Z/+]{40}['"]/gi,
+        type: 'AWS Secret Key',
+        severity: 'critical',
+        description: 'AWS Secret Access Key detected'
+    },
+    pattern: /aws(.{0,20})?['\"][0-9a-zA-Z\/+]{40}['\"]/g,
+    type: 'AWS Secret Key',
+    severity: 'critical',
+    description: 'AWS Secret Access Key detected'
+},
+
+    // Google API Keys
+    googleApiKey: {
+        pattern: /AIza[0-9A-Za-z_-]{35}/g,
+            type: 'Google API Key',
+                severity: 'high',
+                    description: 'Google API Key detected'
+    },
+
+// Google OAuth
+googleOAuth: {
+    pattern: /[0-9]+-[0-9A-Za-z_]{32}\.apps\.googleusercontent\.com/g,
+        type: 'Google OAuth',
+            severity: 'high',
+                description: 'Google OAuth Client ID detected'
+},
+
+// Stripe API Keys
+stripeKey: {
+    pattern: /sk_live_[0-9a-zA-Z]{24,}/g,
+        type: 'Stripe Secret Key',
+            severity: 'critical',
+                description: 'Stripe Secret Key detected'
+},
+
+// Stripe Publishable Keys
+stripePubKey: {
+    pattern: /pk_live_[0-9a-zA-Z]{24,}/g,
+        type: 'Stripe Publishable Key',
+            severity: 'medium',
+                description: 'Stripe Publishable Key detected'
+},
+
+// GitHub Personal Access Token
+githubToken: {
+    pattern: /ghp_[0-9a-zA-Z]{36}/g,
+        type: 'GitHub Token',
+            severity: 'high',
+                description: 'GitHub Personal Access Token detected'
+},
+
+// GitHub OAuth Token
+githubOAuth: {
+    pattern: /gho_[0-9a-zA-Z]{36}/g,
+        type: 'GitHub OAuth Token',
+            severity: 'high',
+                description: 'GitHub OAuth Token detected'
+},
+
+// Slack Token
+slackToken: {
+    pattern: /xox[baprs]-[0-9]{10,13}-[0-9]{10,13}-[0-9a-zA-Z]{24,}/g,
+        type: 'Slack Token',
+            severity: 'high',
+                description: 'Slack API Token detected'
+},
+
+// Slack Webhook
+slackWebhook: {
+    pattern: /https:\/\/hooks\.slack\.com\/services\/T[a-zA-Z0-9_]{8}\/B[a-zA-Z0-9_]{8}\/[a-zA-Z0-9_]{24}/g,
+        type: 'Slack Webhook',
+            severity: 'medium',
+                description: 'Slack Webhook URL detected'
+},
+
+// Twilio API Key
+twilioApiKey: {
+    pattern: /SK[0-9a-fA-F]{32}/g,
+        type: 'Twilio API Key',
+            severity: 'high',
+                description: 'Twilio API Key detected'
+},
+
+// SendGrid API Key
+sendgridApiKey: {
+    pattern: /SG\.[0-9A-Za-z_-]{22}\.[0-9A-Za-z_-]{43}/g,
+        type: 'SendGrid API Key',
+            severity: 'high',
+                description: 'SendGrid API Key detected'
+},
+
+// Mailgun API Key
+mailgunApiKey: {
+    pattern: /key-[0-9a-zA-Z]{32}/g,
+        type: 'Mailgun API Key',
+            severity: 'high',
+                description: 'Mailgun API Key detected'
+},
+
+// Firebase
+firebaseApiKey: {
+    pattern: /AIza[0-9A-Za-z_-]{35}/g,
+        type: 'Firebase API Key',
+            severity: 'medium',
+                description: 'Firebase API Key detected'
+},
+
+// Generic API Key patterns
+genericApiKey: {
+    pattern: /[aA][pP][iI][-_]?[kK][eE][yY][\s]*[:=][\s]*['\"]?[0-9a-zA-Z_-]{20,}['\"]?/g,
+        type: 'Generic API Key',
+            severity: 'medium',
+                description: 'Potential API Key detected'
+},
+
+// Generic Secret patterns
+genericSecret: {
+    pattern: /[sS][eE][cC][rR][eE][tT][\s]*[:=][\s]*['\"]?[0-9a-zA-Z_-]{20,}['\"]?/g,
+        type: 'Generic Secret',
+            severity: 'medium',
+                description: 'Potential secret detected'
+},
+
+// Generic Token patterns
+genericToken: {
+    pattern: /[tT][oO][kK][eE][nN][\s]*[:=][\s]*['\"]?[0-9a-zA-Z_-]{20,}['\"]?/g,
+        type: 'Generic Token',
+            severity: 'medium',
+                description: 'Potential token detected'
+},
+
+// Generic Password patterns (in code)
+genericPassword: {
+    pattern: /[pP][aA][sS][sS][wW][oO][rR][dD][\s]*[:=][\s]*['\"]?[0-9a-zA-Z_!@#$%^&*()-]{8,}['\"]?/g,
+        type: 'Hardcoded Password',
+            severity: 'high',
+                description: 'Potential hardcoded password detected'
+},
+
+// Private Keys
+privateKey: {
+    pattern: /-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----/g,
+        type: 'Private Key',
+            severity: 'critical',
+                description: 'Private cryptographic key detected'
+},
+
+// Azure Storage Account Key
+azureStorageKey: {
+    pattern: /DefaultEndpointsProtocol=https;AccountName=[a-zA-Z0-9]+;AccountKey=[a-zA-Z0-9+/=]{88};/g,
+        type: 'Azure Storage Key',
+            severity: 'critical',
+                description: 'Azure Storage Account Key detected'
+},
+
+// Heroku API Key
+herokuApiKey: {
+    pattern: /[hH][eE][rR][oO][kK][uU].*[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}/g,
+        type: 'Heroku API Key',
+            severity: 'high',
+                description: 'Heroku API Key detected'
+},
+
+// OAuth Access Token (generic)
+oauthToken: {
+    pattern: /[aA]ccess[-_]?[tT]oken[\s]*[:=][\s]*['\"]?[0-9a-zA-Z_-]{20,}['\"]?/g,
+        type: 'OAuth Access Token',
+            severity: 'high',
+                description: 'OAuth Access Token detected'
+},
+
+// Bearer Token
+bearerToken: {
+    pattern: /[bB]earer[\s]+[0-9a-zA-Z_-]{20,}/g,
+        type: 'Bearer Token',
+            severity: 'high',
+                description: 'Bearer Token detected'
+},
+
+// Basic Auth
+basicAuth: {
+    pattern: /[bB]asic[\s]+[A-Za-z0-9+/=]{20,}/g,
+        type: 'Basic Auth Credentials',
+            severity: 'high',
+                description: 'Basic Authentication credentials detected'
+}
+};
+
+/**
+ * Mask a secret value to show only partial information
+ * @param {string} value - The secret value to mask
+ * @param {number} showChars - Number of characters to show at start and end
+ * @returns {string} Masked value
+ */
+function maskSecret(value, showChars = 4) {
+    if (!value || value.length <= showChars * 2) {
+        return '***REDACTED***';
+    }
+    const start = value.substring(0, showChars);
+    const end = value.substring(value.length - showChars);
+    const middle = '*'.repeat(Math.min(value.length - (showChars * 2), 20));
+    return `${start}${middle}${end}`;
+}
+
+/**
+ * Scan text content for secrets using all patterns
+ * @param {string} content - Content to scan
+ * @param {string} location - Location identifier (e.g., 'DOM', 'JS', 'Network')
+ * @returns {Array} Array of detected secrets
+ */
+function scanForSecrets(content, location = 'Unknown') {
+    const findings = [];
+    const seenValues = new Set(); // Avoid duplicates
+
+    for (const [key, config] of Object.entries(SECRET_PATTERNS)) {
+        const matches = content.matchAll(config.pattern);
+
+        for (const match of matches) {
+            const value = match[0];
+
+            // Skip if we've already seen this exact value
+            if (seenValues.has(value)) {
+                continue;
+            }
+            seenValues.add(value);
+
+            findings.push({
+                type: config.type,
+                severity: config.severity,
+                description: config.description,
+                location: location,
+                maskedValue: maskSecret(value),
+                pattern: key,
+                timestamp: new Date().toISOString()
+            });
+        }
+    }
+
+    return findings;
+}
+
+/**
+ * Validate if a potential secret is likely a false positive
+ * @param {string} value - Value to validate
+ * @returns {boolean} True if likely a false positive
+ */
+function isFalsePositive(value) {
+    const falsePositivePatterns = [
+        /example/i,
+        /test/i,
+        /demo/i,
+        /placeholder/i,
+        /your[-_]?key/i,
+        /your[-_]?token/i,
+        /your[-_]?secret/i,
+        /xxx/i,
+        /000/,
+        /111/,
+        /123/
+    ];
+
+    return falsePositivePatterns.some(pattern => pattern.test(value));
+}
+
+// Functions are globally available in browser context
+// SECRET_PATTERNS, maskSecret, scanForSecrets, isFalsePositive
