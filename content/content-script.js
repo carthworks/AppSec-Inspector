@@ -8,6 +8,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log('Content script received message:', request.action);
 
     switch (request.action) {
+        case 'ping':
+            sendResponse({ success: true });
+            return false;
+
         case 'scanDOM':
             handleScanDOM(sendResponse);
             return true; // Keep channel open for async response

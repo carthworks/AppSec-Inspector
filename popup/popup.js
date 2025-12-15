@@ -108,6 +108,31 @@ function hideLoading() {
 }
 
 /**
+ * Ensure content script is injected
+ */
+async function ensureContentScript(tabId) {
+    try {
+        // Try to ping the content script
+        await chrome.tabs.sendMessage(tabId, { action: 'ping' });
+        return true; // Content script already loaded
+    } catch (error) {
+        // Content script not loaded, inject it
+        try {
+            await chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                files: ['content/content-script.js']
+            });
+            // Wait a bit for script to initialize
+            await new Promise(resolve => setTimeout(resolve, 100));
+            return true;
+        } catch (injectError) {
+            console.error('Failed to inject content script:', injectError);
+            throw new Error('Could not inject content script. Please refresh the page and try again.');
+        }
+    }
+}
+
+/**
  * Scan security headers
  */
 async function scanHeaders() {
@@ -149,6 +174,9 @@ async function scanSecrets() {
     showLoading();
 
     try {
+        // Ensure content script is loaded
+        await ensureContentScript(currentTab.id);
+
         // Get DOM data from content script
         const domResponse = await chrome.tabs.sendMessage(currentTab.id, {
             action: 'scanDOM'
@@ -193,6 +221,9 @@ async function scanAuth() {
     showLoading();
 
     try {
+        // Ensure content script is loaded
+        await ensureContentScript(currentTab.id);
+
         // Get cookies from background script
         const cookieResponse = await chrome.runtime.sendMessage({
             action: 'getCookies',
@@ -389,7 +420,7 @@ function displayHeadersResults(findings, url) {
     });
 
     container.innerHTML = html;
-    
+
     // Add fix snippets to FAIL and WARN findings
     setTimeout(() => {
         const cards = container.querySelectorAll('.result-card');
@@ -399,7 +430,7 @@ function displayHeadersResults(findings, url) {
             }
         });
     }, 100);
-    
+
 
 }
 
@@ -449,7 +480,7 @@ function displaySecretsResults(findings) {
     });
 
     container.innerHTML = html;
-    
+
 
 }
 
@@ -564,7 +595,7 @@ function displayAuthResults(findings) {
     }
 
     container.innerHTML = html;
-    
+
 
 }
 
@@ -1017,27 +1048,27 @@ function removeDuplicateFindings(findings) {
  */
 function updateSecurityScore() {
     const scoreData = calculateSecurityScore(currentResults);
-    
+
     // Show score card
     document.getElementById('scoreCard').classList.remove('hidden');
-    
+
     // Update score number
     document.getElementById('scoreNumber').textContent = scoreData.score;
-    
+
     // Update grade
     const gradeLetter = document.getElementById('gradeLetter');
     gradeLetter.textContent = scoreData.grade;
     gradeLetter.style.color = getGradeColor(scoreData.grade);
-    
+
     // Update summary
     document.getElementById('scoreSummary').textContent = scoreData.summary;
-    
+
     // Update breakdown
     document.getElementById('scoreBreakdown').classList.remove('hidden');
     const headersPercent = Math.round((scoreData.breakdown.headers.score / scoreData.breakdown.headers.max) * 100);
     const secretsPercent = Math.round((scoreData.breakdown.secrets.score / scoreData.breakdown.secrets.max) * 100);
     const authPercent = Math.round((scoreData.breakdown.auth.score / scoreData.breakdown.auth.max) * 100);
-    
+
     document.getElementById('headersBreakdown').textContent = headersPercent + '%';
     document.getElementById('secretsBreakdown').textContent = secretsPercent + '%';
     document.getElementById('authBreakdown').textContent = authPercent + '%';
@@ -1049,12 +1080,12 @@ function updateSecurityScore() {
 function addFixSnippets(headerName, resultElement) {
     const snippets = getFixSnippets(headerName);
     if (!snippets) return;
-    
+
     const fixDiv = document.createElement('div');
     fixDiv.className = 'fix-snippets';
-    
+
     const snippetId = 'snippet-' + headerName.replace(/[^a-z0-9]/g, '-');
-    
+
     fixDiv.innerHTML = `
         <div class="fix-snippets-header">
             <div class="fix-snippets-title">
@@ -1075,7 +1106,7 @@ function addFixSnippets(headerName, resultElement) {
             <code id="{snippetId}">{escapeHtml(snippets.nginx)}</code>
         </div>
     `;
-    
+
     // Add platform switching
     fixDiv.querySelectorAll('.platform-tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -1087,7 +1118,7 @@ function addFixSnippets(headerName, resultElement) {
             codeElement.textContent = snippets[platform];
         });
     });
-    
+
     resultElement.appendChild(fixDiv);
 }
 
@@ -1097,10 +1128,10 @@ function addFixSnippets(headerName, resultElement) {
 function copyFixSnippet(button) {
     const code = button.parentElement.querySelector('code').textContent;
     navigator.clipboard.writeText(code);
-    
+
     button.innerHTML = '<span></span> Copied!';
     button.classList.add('copied');
-    
+
     setTimeout(() => {
         button.innerHTML = '<span></span> Copy';
         button.classList.remove('copied');
