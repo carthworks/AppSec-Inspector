@@ -51,7 +51,7 @@ export function Navbar() {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3">
                         <Image
-                            src="/icons/icon48.png"
+                            src="/icons/icon128.png"
                             alt="AppSec Inspector logo"
                             width={48}
                             height={48}

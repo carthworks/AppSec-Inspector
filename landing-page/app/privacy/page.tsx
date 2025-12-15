@@ -122,12 +122,12 @@ export default function PrivacyPage() {
                                     </p>
                                 </div>
                                 <div className="glass rounded-lg p-4">
-                                    <h3 className="font-semibold text-white mb-2">
-                                        host_permissions
-                                    </h3>
+                                    <h3 className="font-semibold text-white mb-2">scripting</h3>
                                     <p className="text-sm">
-                                        Allows the extension to analyze any website you choose to
-                                        scan.
+                                        Allows the extension to inject analysis code into the current
+                                        tab when you click a scan button. This is only used when you
+                                        explicitly initiate a scan and provides better privacy than
+                                        automatic background access.
                                     </p>
                                 </div>
                             </div>
