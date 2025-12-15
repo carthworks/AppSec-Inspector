@@ -29,7 +29,7 @@ build/
 *.zip
 node_modules/
 *.md 
-
+*.txt
 
 
 

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "AppSec Inspector",
   "version": "1.0.0",
-  "description": "Professional web application security inspection tool for AppSec, DevSecOps, and SOC teams. Analyze security headers, detect token leaks, and audit authentication - all locally in your browser.",
+  "description": "Professional security inspection tool. Scan headers, detect secrets, audit auth - all locally, no data collection.",
   "author": "Security Tools Team - tkarthikeyan@gmail.com",
   "icons": {
     "16": "icons/icon16.png",
